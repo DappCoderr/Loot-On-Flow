@@ -1,7 +1,7 @@
 import NonFungibleToken from "./NonFungibleToken.cdc"
 import FungibleToken from "./FungibleToken.cdc"
 import FlowToken from "./FlowToken.cdc"
-import FUSD from "./FUSD.cdc"
+// import FUSD from "./FUSD.cdc"
 
 pub contract LootOnChain: NonFungibleToken {
 
@@ -68,13 +68,14 @@ pub contract LootOnChain: NonFungibleToken {
         }
 
         pub fun borrowNFT(id: UInt64): &NonFungibleToken.NFT {
-            return (&self.ownedNFTs[id] as &NonFungibleToken.NFT)
+            return (&self.ownedNFTs[id] as &NonFungibleToken.NFT?)!
         }
 
         destroy() {
             destroy self.ownedNFTs
         }    
-}
+    
+    }
 
     pub fun currentPrice() {
 
@@ -93,7 +94,10 @@ pub contract LootOnChain: NonFungibleToken {
         return <- create Collection()
     }
 
-    pub fun mintLoot(recipient: Address, nftID: UInt64) {
+    pub fun mintLoot(recipient: &{NonFungibleToken.CollectionPublic}) {
+
+        let nftID = LootOnChain.totalSupply
+
         pre {
             // Make sure that the ID matches the current ID
             nftID == LootOnChain.totalSupply: "The given ID has already been minted."
@@ -105,28 +109,31 @@ pub contract LootOnChain: NonFungibleToken {
         // https://github.com/onflow/flow-core-contracts/blob/master/transactions/flowToken/transfer_tokens.cdc
 
 
-        let nftID = LootOnChain.totalSupply
+        
 
         if nftID < LootOnChain.maxSupply {
 
-            let receiver = getAccount(recipient).getCapability(LootOnChain.LootCollectionPublicPath)!
-                .borrow<&{NonFungibleToken.CollectionPublic}>()
-                ?? panic("Could not get receiver reference to the NFT Collection")
+            // let recipients = getAccount(recipient)
 
+            // let receiver = recipients.getCapability(LootOnChain.LootCollectionPublicPath)!
+            //     .borrow<&{NonFungibleToken.CollectionPublic}>()
+            //     ?? panic("Could not get receiver reference to the NFT Collection")
+
+            // LootOnChain.idToAddress.append(recipient)
+            recipient.deposit(token: <-create LootOnChain.NFT(initID: nftID))
             emit Minted(id: nftID)
-            LootOnChain.idToAddress.append(recipient)
-            receiver.deposit(token: <-create LootOnChain.NFT(initID: nftID))
             LootOnChain.totalSupply = nftID + (1 as UInt64)
-    }}
+        }
+    }
 
     init(){
 
         self.LootCollectionStoragePath = /storage/LootCollection
         self.LootCollectionPublicPath = /public/LootCollection
 
-         self.idToAddress = []
+        self.idToAddress = []
 
-        self.maxSupply = 8888
+        self.maxSupply = 4444
         self.totalSupply = 0
         self.price = 50.0 // 20 FLOW per LOOT
 
@@ -139,6 +146,16 @@ pub contract LootOnChain: NonFungibleToken {
         self.weapons = ["Warhammer","Quarterstaff","Maul","Mace","Club"]
         self.chestArmor = ["Divine Robe","Silk Robe","Linen Robe","Robe","Shirt"]
         self.headArmor = ["Ancient Helm","Ornate Helm","Great Helm","Full Helm","Helm"] 
+
+        let collection <- create Collection()
+
+        self.account.save(<-collection, to: self.LootCollectionStoragePath)
+
+        // create a public capability for the collection
+        self.account.link<&LootOnChain.Collection{NonFungibleToken.CollectionPublic, LootOnChain.LootOnChainPublicCollectiton}>(
+            self.LootCollectionPublicPath,
+            target: self.LootCollectionStoragePath
+        )
 
         emit ContractInitialized()
     }
