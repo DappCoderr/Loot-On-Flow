@@ -14,6 +14,9 @@ pub contract LootOnChain: NonFungibleToken {
     pub let weapons: [String] 
     pub let chestArmor: [String] 
     pub let headArmor: [String] 
+    // pub let necklaces: [String]
+    // pub let rings: [String]
+    // pub let waistArmor: [String]
 
     pub let maxSupply: UInt64
     pub var totalSupply: UInt64
@@ -29,12 +32,22 @@ pub contract LootOnChain: NonFungibleToken {
     pub event Deposit(id: UInt64, to: Address?)
     pub event Minted(id:UInt64)
 
+    pub struct Metadata { 
+        pub let svg: String
+        init(svg: String){
+            self.svg = svg
+        }
+    }
 
     pub resource NFT: NonFungibleToken.INFT {
         pub let id: UInt64
-        init(id:UInt64){
+        pub let svg: String
+        init(id:UInt64, svg:String){
             self.id = id;
+            self.svg = svg
         }
+
+        // pub fun getSVG(): String {}
     }
 
     pub resource interface LootOnChainPublicCollectiton{
@@ -51,7 +64,7 @@ pub contract LootOnChain: NonFungibleToken {
         }
 
         pub fun withdraw(withdrawID: UInt64): @NonFungibleToken.NFT {
-            let token <- self.ownedNFTs.remove(key: withdrawID) ?? panic("missing NFT")
+            let token <- self.ownedNFTs.remove(key: withdrawID) ?? panic("Missing NFT")
             emit Withdraw(id: token.id, from: self.owner?.address)
             return <-token
         }
@@ -82,13 +95,61 @@ pub contract LootOnChain: NonFungibleToken {
         return self.price
     }
 
+   pub fun getRandomWeapon() {}
+   pub fun getRandomChestArmor() {}
+   pub fun getRandomHeadArmor() {}
+   pub fun getRandomNecklaces() {}
+   pub fun getRamdomRings() {}
+   pub fun getRandomWaistArmor() {}
+
+
     pub fun generateSVG(): String {
-        let svg: String = "<svg xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMinYMin meet' viewBox='0 0 350 350'>"
-        svg.concat(self.part1)
-        svg.concat(self.part2)
-        svg.concat(self.part3)
-        svg.concat("</svg>")
+
+        var svg : String  = "<svg xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMinYMin meet' viewBox='0 0 350 350'>"
+        svg = svg.concat("<style>.base { fill: white; font-family: serif; font-size: 14px; }</style>")
+        svg = svg.concat("<rect width='100%' height='100%' fill='black' />")
+        svg = svg.concat("<text x='50%' y='10%' class='base' dominant-baseline='middle' text-anchor='middle'>")
+        svg = svg.concat("Epic")
+        svg = svg.concat("</text>")
+        svg = svg.concat("<text x='50%' y='20%' class='base' dominant-baseline='middle' text-anchor='middle'>")
+        svg = svg.concat("Lord")
+        svg = svg.concat("</text>")
+        svg = svg.concat("<text x='50%' y='30%' class='base' dominant-baseline='middle' text-anchor='middle'>")
+        svg = svg.concat("Hamburger")
+        svg = svg.concat("</text>")
+        svg = svg.concat("<text x='50%' y='40%' class='base' dominant-baseline='middle' text-anchor='middle'>")
+        svg = svg.concat("Knife")
+        svg = svg.concat("</text>")
+        svg = svg.concat("<text x='50%' y='50%' class='base' dominant-baseline='middle' text-anchor='middle'>")
+        svg = svg.concat("Gorza")
+        svg = svg.concat("</text>")
+        svg = svg.concat("</svg>")
         return svg
+
+        // pub let parts: [String]
+        // parts[0] = "<svg xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMinYMin meet' viewBox='0 0 350 350'>"
+        // parts[1] = "<style>.base { fill: white; font-family: serif; font-size: 14px; }</style>"
+        // parts[2] = "<rect width='100%' height='100%' fill='black' />"
+        // parts[3] = "<text x='50%' y='10%' class='base' dominant-baseline='middle' text-anchor='middle'>"
+        // parts[4] = self.getRandomWeapon()
+        // parts[5[ = "</text>"
+        // parts[3] = "<text x='50%' y='10%' class='base' dominant-baseline='middle' text-anchor='middle'>"
+        // parts[4] = self.getRandomChestArmor()
+        // parts[5[ = "</text>"
+        // parts[3] = "<text x='50%' y='20%' class='base' dominant-baseline='middle' text-anchor='middle'>"
+        // parts[4] = self.getRandomHeadArmor()
+        // parts[5[ = "</text>"
+        // parts[3] = "<text x='50%' y='30%' class='base' dominant-baseline='middle' text-anchor='middle'>"
+        // parts[4] = self.getRandomNecklaces()
+        // parts[5[ = "</text>"
+        // parts[3] = "<text x='50%' y='40%' class='base' dominant-baseline='middle' text-anchor='middle'>"
+        // parts[4] = self.getRamdomRings()
+        // parts[5[ = "</text>"
+        // parts[3] = "<text x='50%' y='50%' class='base' dominant-baseline='middle' text-anchor='middle'>"
+        // parts[4] = self.getRandomWaistArmor()
+        // parts[5[ = "</text>"
+        // parts[8] = ("</svg>")
+        // return svg
     }
 
     pub fun createEmptyCollection(): @NonFungibleToken.Collection {
@@ -130,7 +191,7 @@ pub contract LootOnChain: NonFungibleToken {
     pub resource NFTMinter {
 
         pub fun mintNFT( recipient: &{NonFungibleToken.CollectionPublic}) {
-            recipient.deposit(token: <-create LootOnChain.NFT(id: LootOnChain.totalSupply))
+            recipient.deposit(token: <-create LootOnChain.NFT(id: LootOnChain.totalSupply, svg : LootOnChain.generateSVG()))
             emit Minted(id: LootOnChain.totalSupply)
             LootOnChain.totalSupply = LootOnChain.totalSupply + (1 as UInt64)
         }
@@ -157,6 +218,10 @@ pub contract LootOnChain: NonFungibleToken {
         self.weapons = ["Warhammer","Quarterstaff","Maul","Mace","Club"]
         self.chestArmor = ["Divine Robe","Silk Robe","Linen Robe","Robe","Shirt"]
         self.headArmor = ["Ancient Helm","Ornate Helm","Great Helm","Full Helm","Helm"] 
+        // self.necklaces = ["Necklace","Amulet","Pendant"];
+        // self.rings = ["Gold Ring","Silver Ring","Bronze Ring","Platinum Ring","Titanium Ring"];
+        // self.waistArmor = ["Ornate Belt","War Belt","Plated Belt","Mesh Belt","Heavy Belt"]
+
 
         // let collection <- create Collection()
 

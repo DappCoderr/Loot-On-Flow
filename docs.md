@@ -9,3 +9,6 @@ flow transactions send ./cadence/transaction/MintNFT.cdc --network testnet --sig
 
 ### Script to check to Loot in collection 
 flow scripts execute ./cadence/scripts/getID.cdc --network=testnet 0x4f7babd3f2e52b7f
+
+### Remove contract from Account
+flow accounts remove-contract LootOnChain.cdc --signer v --network testnet

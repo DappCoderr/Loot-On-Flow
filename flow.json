@@ -42,7 +42,7 @@
 			"source": "./cadence/contract/LootOnChain.cdc",
 			"aliases": {
 			  "emulator": "0xee82856bf20e2aa6",
-			  "testnet": "0x4f7babd3f2e52b7f",
+			  "testnet": "0x439ed02039e7f0c3",
 			  "mainnet": "0xf233dcee88fe0abe"
 			}
 		  },
@@ -96,13 +96,13 @@
 			}
 		  },
 		  "v": {
-			"address": "0x4f7babd3f2e52b7f",
+			"address": "0x439ed02039e7f0c3",
 			"key": {
 			  "type": "hex",
 			  "index": 0,
 			  "signatureAlgorithm": "ECDSA_P256",
 			  "hashAlgorithm": "SHA3_256",
-			  "privateKey": "82f0fc638facec1785b4d3cd63e390f06501f03044e4388b2b7d891f7e045c28"
+			  "privateKey": "de65e79d544a638c9333580f3b4f68d3867bd29c3d056df503714ffd03edb3da"
 			}
 		  }
 	},
@@ -111,7 +111,7 @@
 			"emulator-account": ["LootOnChain"]
 		  },
 		  "testnet": {
-			"v": ["KittyItems"]
+			"v": ["LootOnChain"]
 		  }
 	}
 }
