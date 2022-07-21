@@ -7,6 +7,7 @@ pub contract LootOnChain: NonFungibleToken {
 
     pub let LootCollectionStoragePath: StoragePath
     pub let LootCollectionPublicPath: PublicPath
+    pub let MinterStoragePath: StoragePath
 
     access(self) let idToAddress: [Address]
 
@@ -77,8 +78,8 @@ pub contract LootOnChain: NonFungibleToken {
     
     }
 
-    pub fun currentPrice() {
-
+    pub fun getMintPrice(): UFix64 {
+        return self.price
     }
 
     pub fun generateSVG(): String {
@@ -94,35 +95,44 @@ pub contract LootOnChain: NonFungibleToken {
         return <- create Collection()
     }
 
-    pub fun mintLoot(recipient: &{NonFungibleToken.CollectionPublic}) {
+    // pub fun mintLoot(recipient: &{NonFungibleToken.CollectionPublic}) {
 
-        let nftID = LootOnChain.totalSupply
+    //     let nftID = LootOnChain.totalSupply
 
-        pre {
-            // Make sure that the ID matches the current ID
-            nftID == LootOnChain.totalSupply: "The given ID has already been minted."
-            // Make sure that the ID is not greater than the max supply
-            nftID < LootOnChain.maxSupply: "There are no LOOT left."
-            // Make sure that the given vault has enough FLOW
-            // vault.balance >= self.price: "The given FLOW vault doesn't have enough FLOW."
-        }
-        // https://github.com/onflow/flow-core-contracts/blob/master/transactions/flowToken/transfer_tokens.cdc
+    //     // pre {
+    //     //     // Make sure that the ID matches the current ID
+    //     //     nftID == LootOnChain.totalSupply: "The given ID has already been minted."
+    //     //     // Make sure that the ID is not greater than the max supply
+    //     //     nftID < LootOnChain.maxSupply: "There are no LOOT left."
+    //     //     // Make sure that the given vault has enough FLOW
+    //     //     // vault.balance >= self.price: "The given FLOW vault doesn't have enough FLOW."
+    //     // }
+    //     // https://github.com/onflow/flow-core-contracts/blob/master/transactions/flowToken/transfer_tokens.cdc
 
 
         
 
-        if nftID < LootOnChain.maxSupply {
+    //     if nftID < LootOnChain.maxSupply {
 
-            // let recipients = getAccount(recipient)
+    //         // let recipients = getAccount(recipient)
 
-            // let receiver = recipients.getCapability(LootOnChain.LootCollectionPublicPath)!
-            //     .borrow<&{NonFungibleToken.CollectionPublic}>()
-            //     ?? panic("Could not get receiver reference to the NFT Collection")
+    //         // let receiver = recipients.getCapability(LootOnChain.LootCollectionPublicPath)!
+    //         //     .borrow<&{NonFungibleToken.CollectionPublic}>()
+    //         //     ?? panic("Could not get receiver reference to the NFT Collection")
 
-            // LootOnChain.idToAddress.append(recipient)
-            recipient.deposit(token: <-create LootOnChain.NFT(initID: nftID))
-            emit Minted(id: nftID)
-            LootOnChain.totalSupply = nftID + (1 as UInt64)
+    //         // LootOnChain.idToAddress.append(recipient)
+    //         recipient.deposit(token: <-create LootOnChain.NFT(initID: nftID))
+    //         emit Minted(id: nftID)
+    //         LootOnChain.totalSupply = nftID + (1 as UInt64)
+    //     }
+    // }
+
+    pub resource NFTMinter {
+
+        pub fun mintNFT( recipient: &{NonFungibleToken.CollectionPublic}) {
+            recipient.deposit(token: <-create LootOnChain.NFT(id: LootOnChain.totalSupply))
+            emit Minted(id: LootOnChain.totalSupply)
+            LootOnChain.totalSupply = LootOnChain.totalSupply + (1 as UInt64)
         }
     }
 
@@ -130,6 +140,7 @@ pub contract LootOnChain: NonFungibleToken {
 
         self.LootCollectionStoragePath = /storage/LootCollection
         self.LootCollectionPublicPath = /public/LootCollection
+        self.MinterStoragePath = /storage/LootNFTMinter
 
         self.idToAddress = []
 
@@ -147,15 +158,18 @@ pub contract LootOnChain: NonFungibleToken {
         self.chestArmor = ["Divine Robe","Silk Robe","Linen Robe","Robe","Shirt"]
         self.headArmor = ["Ancient Helm","Ornate Helm","Great Helm","Full Helm","Helm"] 
 
-        let collection <- create Collection()
+        // let collection <- create Collection()
 
-        self.account.save(<-collection, to: self.LootCollectionStoragePath)
+        // self.account.save(<-collection, to: self.LootCollectionStoragePath)
 
         // create a public capability for the collection
-        self.account.link<&LootOnChain.Collection{NonFungibleToken.CollectionPublic, LootOnChain.LootOnChainPublicCollectiton}>(
-            self.LootCollectionPublicPath,
-            target: self.LootCollectionStoragePath
-        )
+        // self.account.link<&LootOnChain.Collection{NonFungibleToken.CollectionPublic, LootOnChain.LootOnChainPublicCollectiton}>(
+        //     self.LootCollectionPublicPath,
+        //     target: self.LootCollectionStoragePath
+        // )
+
+        let minter <- create NFTMinter()
+        self.account.save(<-minter, to: self.MinterStoragePath)
 
         emit ContractInitialized()
     }

@@ -42,9 +42,17 @@
 			"source": "./cadence/contract/LootOnChain.cdc",
 			"aliases": {
 			  "emulator": "0xee82856bf20e2aa6",
-			  "testnet": "0x31d622f371500cc9",
+			  "testnet": "0x4f7babd3f2e52b7f",
 			  "mainnet": "0xf233dcee88fe0abe"
 			}
+		  },
+		  "KittyItems": {
+			"source": "./cadence/contract/KittyItems.cdc",
+			"aliases": {
+				"emulator": "0xee82856bf20e2aa6",
+				"testnet": "0x4f7babd3f2e52b7f",
+				"mainnet": "0xf233dcee88fe0abe"
+			  }
 		  }		
 	},
 	"networks": {
@@ -76,6 +84,26 @@
 			  "hashAlgorithm": "SHA3_256",
 			  "privateKey": "8309159a3346e4dfcd9e57274998f5fc622de5b158f44cbe3cfdb61c05ec5d26"
 			}
+		  },
+		  "alice": {
+			"address": "0x53d21903023dd170",
+			"key": {
+			  "type": "hex",
+			  "index": 0,
+			  "signatureAlgorithm": "ECDSA_P256",
+			  "hashAlgorithm": "SHA3_256",
+			  "privateKey": "b7676ffb5d12584e5ec9ab499b7384c82ced81c9c5ebe6e98df87e74e610db3c"
+			}
+		  },
+		  "v": {
+			"address": "0x4f7babd3f2e52b7f",
+			"key": {
+			  "type": "hex",
+			  "index": 0,
+			  "signatureAlgorithm": "ECDSA_P256",
+			  "hashAlgorithm": "SHA3_256",
+			  "privateKey": "82f0fc638facec1785b4d3cd63e390f06501f03044e4388b2b7d891f7e045c28"
+			}
 		  }
 	},
 	"deployments": {
@@ -83,7 +111,8 @@
 			"emulator-account": ["LootOnChain"]
 		  },
 		  "testnet": {
-			"bob": ["LootOnChain"]
+			"v": ["KittyItems"]
 		  }
 	}
 }
+ 
